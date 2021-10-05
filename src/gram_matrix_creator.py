@@ -49,38 +49,41 @@ for s in style_layers:
 feature_extractor = keras.Model(inputs=model.inputs, outputs=style_output_dict)
 
 # GRAM matrix extractor
-folder = "data" #Images folder
-to_folder = "data_G" #Gram matrix destination folder
+# folder = "data" #Images folder
+# to_folder = "data_G" #Gram matrix destination folder
 
 
-errors = []
-if not os.path.exists(to_folder):
-    os.mkdir(to_folder)
-for f in os.listdir(folder):
-    if f == ".DS_Store":
-        continue
-    to_f = os.path.join(to_folder, f)
-    f = os.path.join(folder, f)
-    if not os.path.exists(to_f):
-        os.mkdir(to_f)
-    for e in os.listdir(f):
-        if e == ".DS_Store":
+def create_gram_metrices(folder, to_folder):
+    errors = []
+    if not os.path.exists(to_folder):
+        os.mkdir(to_folder)
+    for f in os.listdir(folder):
+        if f == ".DS_Store":
             continue
-        to_e = os.path.join(to_f, e).split(".")[0]
-        e = os.path.join(f, e)
-        if not os.path.exists(to_e):
-            os.mkdir(to_e)
-        try:
-            style_reference_image = preprocess_image(e)
-            features = feature_extractor(style_reference_image)
-            for layer_name in style_layers:
-                file = os.path.join(to_e, layer_name)
-                if os.path.exists(file):
-                    continue
-                layer_features = features[layer_name]
-                G = gram_matrix(layer_features[0])
-                file = open(file, "xb")
-                pickle.dump(G, file)
-                file.close()
-        except Exception as ex:
-            errors.append([ex, e])
+        to_f = os.path.join(to_folder, f)
+        f = os.path.join(folder, f)
+        if not os.path.exists(to_f):
+            os.mkdir(to_f)
+        for e in os.listdir(f):
+            if e == ".DS_Store":
+                continue
+            to_e = os.path.join(to_f, e).split(".")[0]
+            e = os.path.join(f, e)
+            if not os.path.exists(to_e):
+                os.mkdir(to_e)
+            else:
+                continue
+            try:
+                style_reference_image = preprocess_image(e)
+                features = feature_extractor(style_reference_image)
+                for layer_name in style_layers:
+                    file = os.path.join(to_e, layer_name)
+                    if os.path.exists(file):
+                        continue
+                    layer_features = features[layer_name]
+                    G = gram_matrix(layer_features[0])
+                    file = open(file, "xb")
+                    pickle.dump(G, file)
+                    file.close()
+            except Exception as ex:
+                errors.append([ex, e])

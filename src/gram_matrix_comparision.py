@@ -13,13 +13,17 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.applications import vgg19
 
+from .gram_matrix_creator import create_gram_metrices
 
 logging.basicConfig(level=logging.INFO)
 _logger = logging.getLogger('gram_matrix')
 
 
+#Change these to local folders
 gmatrix_folder = "data_G" #Gram matrix folder
 images_folder = "data" #Images folder
+
+create_gram_metrices(images_folder, gmatrix_folder)
 
 
 def preprocess_image(image_path):
@@ -103,18 +107,18 @@ def get_similar_images(image_path, result_folder):
     for layer_name in style_layers:
         layer_features = features[layer_name]
         orignal_layers[layer_name] = gram_matrix(layer_features[0])
-
+    
     comp_dict = {}
     for f in os.listdir(gmatrix_folder):
-        if f == ".DS_Store":
+        if f == ".DS_Store" or f == "Icon\r":
             continue
         f = os.path.join(gmatrix_folder, f)
         for fo in os.listdir(f):
-            if fo == ".DS_Store" or fo == image_name:
+            if fo == ".DS_Store" or fo == image_name or fo == "Icon\r":
                 continue
             fo = os.path.join(f, fo)
             for fn in os.listdir(fo):
-                if fn == ".DS_Store":
+                if fn == ".DS_Store" or fn == "Icon\r":
                     continue
                 fn = os.path.join(fo, fn)
                 infile = open(fn, 'rb')
@@ -219,10 +223,11 @@ def handle_file(image_path):
     dir = os.path.dirname(image_path)
     try:
         result_folder_ = get_similar_images(image_path, dir)
+        filename = shutil.make_archive(os.path.join(dir, "results"), 'zip', result_folder_)
+        return os.path.join(dir, filename)
     except Exception as e:
         _logger.info(e)
-    filename = shutil.make_archive(os.path.join(dir, "results"), 'zip', result_folder_)
-    return os.path.join(dir, filename)
+        return None
 
 
 def handle_zip(zip_path):
