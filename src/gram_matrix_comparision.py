@@ -20,8 +20,10 @@ _logger = logging.getLogger('gram_matrix')
 
 
 #Change these to local folders
-gmatrix_folder = "data_G" #Gram matrix folder
-images_folder = "data" #Images folder
+# gmatrix_folder = "data_G" #Gram matrix folder
+# images_folder = "data" #Images folder
+images_folder = input("Enter path to images folder") #Images folder
+gmatrix_folder = input("Enter path to the folder where you want to store Gram matrices.") #Gram matrix folder
 
 create_gram_metrices(images_folder, gmatrix_folder)
 
